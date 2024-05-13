@@ -42,7 +42,7 @@ jobs:
         env:
           NGINX_TAG: ${{steps.step_fetch_nginx_tag.outputs.tag}}
           MORE_TAG: ${{steps.step_fetch_more_module_tag.outputs.tag}}
-          OUTPUT_TAG: ${{steps.step_fetch_more_module_tag.outputs.tag}}
+          OUTPUT_TAG: ${{steps.output_tag.outputs.tag}}
         run: |
           echo "nginx: $NGINX_TAG; more_module: $MORE_TAG"
           echo "Output tag: $OUTPUT_TAG"
@@ -88,6 +88,7 @@ jobs:
 
           echo "load_module modules/ngx_http_js_module.so;" >> /tmp/nginx.conf
           cat $output_path/conf/nginx.conf >> /tmp/nginx.conf
+          sed -i "s/80;/8080;/g" /tmp/nginx.conf
           mv /tmp/nginx.conf $output_path/
           cd $output_path/sbin
           ./nginx -T
