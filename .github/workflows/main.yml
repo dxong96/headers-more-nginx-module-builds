@@ -102,6 +102,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.fetch_tags.outputs.output_tag }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           body: |
             Nginx more headers module version: ${{needs.fetch_tags.outputs.more_module_tag}}
             Nginx version: ${{needs.fetch_tags.outputs.nginx_tag}}
