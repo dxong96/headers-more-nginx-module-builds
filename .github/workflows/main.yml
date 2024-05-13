@@ -91,8 +91,6 @@ jobs:
           mv /tmp/nginx.conf $output_path/
           cd $output_path/sbin
           ./nginx -T
-      - id: upload_module
-        name: Upload output module
         
         
       - id: test_output
