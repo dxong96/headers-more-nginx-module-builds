@@ -1,5 +1,7 @@
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 1" # Runs every Monday UTC 00:00
 
 jobs:
   fetch_tags:
