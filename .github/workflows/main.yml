@@ -80,6 +80,7 @@ jobs:
           ref: ${{needs.fetch_tags.outputs.more_module_tag}}
       
       - id: build
+        name: Build module
         run: |
           cd "$GITHUB_WORKSPACE/nginx"
           output_path="$GITHUB_WORKSPACE/nginx_output"
@@ -95,8 +96,17 @@ jobs:
           mv /tmp/nginx.conf $output_path/conf/
           cd $output_path/sbin
           ./nginx -t
+          echo "module_path=$output_path/modules/ngx_http_headers_more_filter_module.so" >> "$GITHUB_OUTPUT"
       
-
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.fetch_tags.outputs.output_tag }}
+          body: |
+            Nginx more headers module version: ${{needs.fetch_tags.outputs.more_module_tag}}
+            Nginx version: ${{needs.fetch_tags.outputs.nginx_tag}}
+          files: |
+            ${{ steps.build.outputs.module_path }}
         
       - id: test_output
         name: Step to test output
