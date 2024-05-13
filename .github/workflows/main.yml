@@ -95,13 +95,14 @@ jobs:
           mv /tmp/nginx.conf $output_path/conf/
           cd $output_path/sbin
           ./nginx -t
-        
+      
+
         
       - id: test_output
         name: Step to test output
         run: |
           ls $GITHUB_WORKSPACE
-          ls $GITHUB_WORKSPACE/nginx_output
+          ls $GITHUB_WORKSPACE/nginx_output/modules
 
 
           
