@@ -2,9 +2,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  fetch_tags:
     runs-on: ubuntu-latest
-
+    
+    outputs:
+      nginx_tag: ${{ steps.step_fetch_nginx_tag.outputs.tag }}
+      more_module_tag: ${{ steps.step_fetch_more_module_tag.outputs.tag }}
+    
     steps:
       - id: step_fetch_nginx_tag
         name: Get nginx latest tag
@@ -22,5 +26,41 @@ jobs:
         name: Step to test output
         env:
           NGINX_TAG: ${{steps.step_fetch_nginx_tag.outputs.tag}}
-          MORE_TAG: ${{needs.step_fetch_more_module_tag.outputs.tag}}
-        run: echo "$NGINX_TAG $MORE_TAG"
+          MORE_TAG: ${{steps.step_fetch_more_module_tag.outputs.tag}}
+        run: |
+          echo "nginx: $NGINX_TAG; more_module: $MORE_TAG"
+  
+  build:
+    runs-on: ubuntu-latest
+
+    needs: fetch_tags
+    steps:
+      - id: step_setup_gcc
+        uses: egor-tensin/setup-gcc@v1
+
+      - name: step_checkout_nginx
+        uses: actions/checkout@v2
+        with:
+          repository: nginx/nginx
+          path: './nginx'
+          ref: ${{needs.fetch_tags.outputs.nginx_tag}}
+
+      - name: step_checkout_more_module
+        uses: actions/checkout@v2
+        with:
+          repository: openresty/headers-more-nginx-module
+          path: './more_module'
+          ref: ${{needs.fetch_tags.outputs.more_module_tag}}
+      
+      - id: build
+        run: |
+          cd ./nginx
+          ./configure --prefix=/opt/nginx --add-dynamic-module=../more_module --with-compat
+
+      - id: test_output
+        name: Step to test output
+        run: |
+          ls /opt/nginx/modules
+
+          
+    
