@@ -61,12 +61,13 @@ jobs:
       - id: build
         run: |
           cd "$GITHUB_WORKSPACE/nginx"
-          ./configure --prefix=/opt/nginx --add-dynamic-module=../more_module --with-compat
+          ./auto/configure "--prefix=$GITHUB_WORKSPACE/nginx_output" --add-dynamic-module=../more_module --with-compat
+          make
 
       - id: test_output
         name: Step to test output
         run: |
-          ls /opt/nginx/modules
+          ls $GITHUB_WORKSPACE/nginx_output/modules
 
           
     
