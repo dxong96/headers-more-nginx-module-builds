@@ -39,6 +39,7 @@ jobs:
         run: |
           echo "HOME: $HOME"
           echo "pwd: $(pwd)"
+          echo "github workspace: $GITHUB_WORKSPACE"
       
       - id: step_setup_gcc
         uses: egor-tensin/setup-gcc@v1
@@ -59,7 +60,7 @@ jobs:
       
       - id: build
         run: |
-          cd ./nginx
+          cd "$GITHUB_WORKSPACE/nginx"
           ./configure --prefix=/opt/nginx --add-dynamic-module=../more_module --with-compat
 
       - id: test_output
