@@ -67,7 +67,8 @@ jobs:
       - id: test_output
         name: Step to test output
         run: |
-          ls $GITHUB_WORKSPACE/nginx_output/modules
+          ls $GITHUB_WORKSPACE
+          ls $GITHUB_WORKSPACE/nginx_output
 
           
     
