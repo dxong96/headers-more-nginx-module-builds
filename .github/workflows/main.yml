@@ -61,7 +61,7 @@ jobs:
       - id: build
         run: |
           cd "$GITHUB_WORKSPACE/nginx"
-          ./auto/configure "--prefix=$GITHUB_WORKSPACE/nginx_output" --add-dynamic-module=../more_module --with-compat
+          ./auto/configure --prefix="$GITHUB_WORKSPACE/nginx_output" --add-dynamic-module=../more_module --with-compat
           make
           ls $GITHUB_WORKSPACE
           ls $GITHUB_WORKSPACE/nginx_output
