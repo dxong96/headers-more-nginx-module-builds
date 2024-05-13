@@ -22,13 +22,31 @@ jobs:
           more_tag=$(curl --silent "https://api.github.com/repos/openresty/headers-more-nginx-module/tags" | grep -Po "(?<=\"name\": \").*(?=\")" | head -n 1)
           echo "tag=$more_tag" >> "$GITHUB_OUTPUT"
 
+      - id: output_tag
+        name: Generate output tag
+        run: |
+          part1=$(sed "s/release-//g" <<< "${{steps.step_fetch_nginx_tag.outputs.tag}}")
+          more_tag="${{steps.step_fetch_more_module_tag.outputs.tag}}"
+          part2=${more_tag:1}
+          output_tag="n_$part1-m_$part2"
+          echo "Output tag: $output_tag"
+          echo "tag=$output_tag" >> "$GITHUB_OUTPUT"
+
+      - id: checkTag
+        uses: mukunku/tag-exists-action@v1.4.0
+        with: 
+          tag: ${{ steps.output_tag.outputs.tag }}
+
       - id: test_output
         name: Step to test output
         env:
           NGINX_TAG: ${{steps.step_fetch_nginx_tag.outputs.tag}}
           MORE_TAG: ${{steps.step_fetch_more_module_tag.outputs.tag}}
+          OUTPUT_TAG: ${{steps.step_fetch_more_module_tag.outputs.tag}}
         run: |
           echo "nginx: $NGINX_TAG; more_module: $MORE_TAG"
+          echo "Output tag: $OUTPUT_TAG"
+          echo "Output tag exists: ${{ steps.checkTag.outputs.exists }}"
   
   build:
     runs-on: ubuntu-latest
@@ -44,14 +62,14 @@ jobs:
       - id: step_setup_gcc
         uses: egor-tensin/setup-gcc@v1
 
-      - name: step_checkout_nginx
+      - id: step_checkout_nginx
         uses: actions/checkout@v2
         with:
           repository: nginx/nginx
           path: './nginx'
           ref: ${{needs.fetch_tags.outputs.nginx_tag}}
 
-      - name: step_checkout_more_module
+      - id: step_checkout_more_module
         uses: actions/checkout@v2
         with:
           repository: openresty/headers-more-nginx-module
@@ -72,8 +90,11 @@ jobs:
           cat $output_path/conf/nginx.conf >> /tmp/nginx.conf
           mv /tmp/nginx.conf $output_path/
           cd $output_path/sbin
-          ./nginx -t
-
+          ./nginx -T
+      - id: upload_module
+        name: Upload output module
+        
+        
       - id: test_output
         name: Step to test output
         run: |
