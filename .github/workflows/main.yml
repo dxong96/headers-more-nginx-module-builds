@@ -53,7 +53,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     needs: fetch_tags
-    if: ${{ ! needs.fetch_tags.outputs.output_tag_exists }}
+    if: ${{ needs.fetch_tags.outputs.output_tag_exists == 'false' }}
 
     steps:
       - name: Show paths
