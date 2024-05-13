@@ -9,16 +9,18 @@ jobs:
       - id: step_fetch_nginx_tag
         name: Get nginx latest tag
         run: |
-          curl --silent "https://api.github.com/repos/nginx/nginx/tags" | grep -Po "(?<=\"name\": \").*(?=\")" | head -n 1 >> "$GITHUB_OUTPUT"
+          nginx_tag=$(curl --silent "https://api.github.com/repos/nginx/nginx/tags" | grep -Po "(?<=\"name\": \").*(?=\")" | head -n 1)
+          echo "tag=$nginx_tag" >> "$GITHUB_OUTPUT"
 
       - id: step_fetch_more_module_tag
         name: Get nginx more module latest tag
         run: |
-          curl --silent "https://api.github.com/repos/openresty/headers-more-nginx-module/tags" | grep -Po "(?<=\"name\": \").*(?=\")" | head -n 1 >> "$GITHUB_OUTPUT"
+          more_tag=$(curl --silent "https://api.github.com/repos/openresty/headers-more-nginx-module/tags" | grep -Po "(?<=\"name\": \").*(?=\")" | head -n 1)
+          echo "tag=$more_tag" >> "$GITHUB_OUTPUT"
 
       - id: test_output
         name: Step to test output
         env:
-          NGINX_TAG: ${{steps.step_fetch_nginx_tag.outputs.test}}
-          MORE_TAG: ${{needs.step_fetch_more_module_tag.outputs.output2}}
+          NGINX_TAG: ${{steps.step_fetch_nginx_tag.outputs.tag}}
+          MORE_TAG: ${{needs.step_fetch_more_module_tag.outputs.tag}}
         run: echo "$NGINX_TAG $MORE_TAG"
