@@ -61,10 +61,18 @@ jobs:
       - id: build
         run: |
           cd "$GITHUB_WORKSPACE/nginx"
-          ./auto/configure --prefix="$GITHUB_WORKSPACE/nginx_output" --add-dynamic-module=../more_module --with-compat
+          output_path="$GITHUB_WORKSPACE/nginx_output"
+          ./auto/configure --prefix="$output_path" --add-dynamic-module=../more_module --with-compat
           make install
+          
           ls $GITHUB_WORKSPACE
           ls $GITHUB_WORKSPACE/nginx_output
+
+          echo "load_module modules/ngx_http_js_module.so;" >> /tmp/nginx.conf
+          cat $output_path/conf/nginx.conf >> /tmp/nginx.conf
+          mv /tmp/nginx.conf $output_path/
+          cd $output_path/sbin
+          ./nginx -t
 
       - id: test_output
         name: Step to test output
