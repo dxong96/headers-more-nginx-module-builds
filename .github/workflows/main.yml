@@ -1,5 +1,12 @@
 on:
   workflow_dispatch:
+    inputs:
+      nginx_tag:
+        description: 'Nginx tag'
+        type: string
+      more_module_tag:
+        description: 'Nginx more module tag'
+        type: string
   schedule:
     - cron: "0 0 * * 1" # Runs every Monday UTC 00:00
 
@@ -8,8 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     
     outputs:
-      nginx_tag: ${{ steps.step_fetch_nginx_tag.outputs.tag }}
-      more_module_tag: ${{ steps.step_fetch_more_module_tag.outputs.tag }}
+      nginx_tag: ${{ inputs.nginx_tag || steps.step_fetch_nginx_tag.outputs.tag }}
+      more_module_tag: ${{ inputs.more_module_tag || steps.step_fetch_more_module_tag.outputs.tag }}
       output_tag: ${{steps.output_tag.outputs.tag}}
       output_tag_exists: ${{ steps.check_tag.outputs.exists }}
     
@@ -29,8 +36,8 @@ jobs:
       - id: output_tag
         name: Generate output tag
         run: |
-          part1=$(sed "s/release-//g" <<< "${{steps.step_fetch_nginx_tag.outputs.tag}}")
-          more_tag="${{steps.step_fetch_more_module_tag.outputs.tag}}"
+          part1=$(sed "s/release-//g" <<< "${{ inputs.nginx_tag || steps.step_fetch_nginx_tag.outputs.tag}}")
+          more_tag="${{ inputs.more_module_tag || steps.step_fetch_more_module_tag.outputs.tag }}"
           part2=${more_tag:1}
           output_tag="n_$part1-m_$part2"
           echo "Output tag: $output_tag"
